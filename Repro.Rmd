@@ -3,8 +3,8 @@ title: "Repro"
 author: "cvv"
 date: "9 March 2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -47,12 +47,6 @@ popHealthByEvent <-
         
 
 ```
-#### This table summarises the events and its negative effect in population health. 
-```{r echo=FALSE} 
-popHealthByEvent
-```
-The top three events that caused the most number of both injuries and fatalities are **tornado (96979), excessive heat (8428), and tstm wind (7461)**. While tstm wind has more occurrances, tornado still tops for the damage in life 
-
 
 
 
@@ -114,16 +108,25 @@ damagesByEvent <-
           arrange(desc(total_value))  %>% 
             top_n(10)
 ```
-#### This table summarises the events and its damages in dollar value. 
-```{r echo=FALSE} 
-damagesByEvent
-```
-
-The events with the most damages are Flood at $150 Billion, then Hurricane/Typhoon at $71 Billion, and Tornado at $57 Billion.
 
 
 ## Results
 
+#### 1. This table summarises the events and its negative effect in population health. 
+```{r echo=FALSE} 
+popHealthByEvent
+```
+The top three events that caused the most number of both injuries and fatalities are **tornado (96979), excessive heat (8428), and tstm wind (7461)**. While tstm wind has more occurrances, tornado still tops for the damage in life 
+
+
+#### 2. This table summarises the events and its damages in dollar value. 
+```{r echo=FALSE} 
+damagesByEvent
+```
+The events with the most damages are Flood at $150 Billion, then Hurricane/Typhoon at $71 Billion, and Tornado at $57 Billion.
+
+
+####3. The plots below show the damages in population health and properties
 ```{r, message=F, warning=F}
 library(ggplot2)
 require(gridExtra)

@@ -181,31 +181,6 @@ event}\label{summarise-fatalities-and-injuries-by-event}
 \end{Highlighting}
 \end{Shaded}
 
-\paragraph{This table summarises the events and its negative effect in
-population
-health.}\label{this-table-summarises-the-events-and-its-negative-effect-in-population-health.}
-
-\begin{verbatim}
-## # A tibble: 10 x 5
-##    EVTYPE            Ocurrances Fatalities Injuries Fatalities_and_Injuries
-##    <fct>                  <int>      <dbl>    <dbl>                   <dbl>
-##  1 TORNADO                60652       5633    91346                   96979
-##  2 EXCESSIVE HEAT          1678       1903     6525                    8428
-##  3 TSTM WIND             219940        504     6957                    7461
-##  4 FLOOD                  25326        470     6789                    7259
-##  5 LIGHTNING              15754        816     5230                    6046
-##  6 HEAT                     767        937     2100                    3037
-##  7 FLASH FLOOD            54277        978     1777                    2755
-##  8 ICE STORM               2006         89     1975                    2064
-##  9 THUNDERSTORM WIND      82563        133     1488                    1621
-## 10 WINTER STORM           11433        206     1321                    1527
-\end{verbatim}
-
-The top three events that caused the most number of both injuries and
-fatalities are \textbf{tornado (96979), excessive heat (8428), and tstm
-wind (7461)}. While tstm wind has more occurrances, tornado still tops
-for the damage in life
-
 \subsubsection{3. Summarise Property and Crop Damages by type of
 event}\label{summarise-property-and-crop-damages-by-type-of-event}
 
@@ -282,7 +257,34 @@ the narrative part of the entry.
 \end{Highlighting}
 \end{Shaded}
 
-\paragraph{This table summarises the events and its damages in dollar
+\subsection{Results}\label{results}
+
+\paragraph{1. This table summarises the events and its negative effect
+in population
+health.}\label{this-table-summarises-the-events-and-its-negative-effect-in-population-health.}
+
+\begin{verbatim}
+## # A tibble: 10 x 5
+##    EVTYPE            Ocurrances Fatalities Injuries Fatalities_and_Injuries
+##    <fct>                  <int>      <dbl>    <dbl>                   <dbl>
+##  1 TORNADO                60652       5633    91346                   96979
+##  2 EXCESSIVE HEAT          1678       1903     6525                    8428
+##  3 TSTM WIND             219940        504     6957                    7461
+##  4 FLOOD                  25326        470     6789                    7259
+##  5 LIGHTNING              15754        816     5230                    6046
+##  6 HEAT                     767        937     2100                    3037
+##  7 FLASH FLOOD            54277        978     1777                    2755
+##  8 ICE STORM               2006         89     1975                    2064
+##  9 THUNDERSTORM WIND      82563        133     1488                    1621
+## 10 WINTER STORM           11433        206     1321                    1527
+\end{verbatim}
+
+The top three events that caused the most number of both injuries and
+fatalities are \textbf{tornado (96979), excessive heat (8428), and tstm
+wind (7461)}. While tstm wind has more occurrances, tornado still tops
+for the damage in life
+
+\paragraph{2. This table summarises the events and its damages in dollar
 value.}\label{this-table-summarises-the-events-and-its-damages-in-dollar-value.}
 
 \begin{verbatim}
@@ -304,7 +306,8 @@ value.}\label{this-table-summarises-the-events-and-its-damages-in-dollar-value.}
 The events with the most damages are Flood at \$150 Billion, then
 Hurricane/Typhoon at \$71 Billion, and Tornado at \$57 Billion.
 
-\subsection{Results}\label{results}
+\paragraph{3. The plots below show the damages in population health and
+properties}\label{the-plots-below-show-the-damages-in-population-health-and-properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
