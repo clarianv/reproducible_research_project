@@ -1,0 +1,155 @@
+---
+title: "Repro"
+author: "cvv"
+date: "9 March 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+
+```
+
+# The Most Damaging Weather Events in the United States in terms of Fatality, Injuries, Property and Crop Damages
+
+
+##Synopsis
+This analysis explores the NOAA Storm Database which has the storm data documenting severe weather events in United States, it's effects in terms of population health and economic damages. It gives information on events that happened, the number of injuries and fatalities that can be assosiatied in those events, as well as damages of property and crops in dollar value.
+
+## Data Processing
+###1. Read raw data file "repdata_data_StormData.csv.bz2"?
+```{r cache=TRUE}
+rawdata <- read.csv("repdata_data_StormData.csv.bz2")
+```
+
+```{r, message=F, warning=F}
+library("dplyr")
+data <- rawdata %>% select (EVTYPE, FATALITIES, INJURIES, PROPDMG,PROPDMGEXP,CROPDMG,CROPDMGEXP)
+```
+We only get the relevant measures. The event type, number of fatalities, number of injuries, property damages value & scale, and finally crop damages value & scale.
+
+
+###2. Summarise Fatalities and Injuries by event
+```{r, message=F, warning=F}
+popHealthByEvent <- 
+  data %>% 
+    group_by(EVTYPE)  %>% 
+      summarise(Ocurrances = n(), 
+                Fatalities = sum(coalesce(FATALITIES,0)), 
+                Injuries = sum(coalesce(INJURIES,0)),
+                Fatalities_and_Injuries = Fatalities + Injuries
+                ) %>% 
+        arrange(desc(Fatalities_and_Injuries))  %>% 
+          top_n(10)
+        
+
+```
+#### This table summarises the events and its negative effect in population health. 
+```{r echo=FALSE} 
+popHealthByEvent
+```
+The top three events that caused the most number of both injuries and fatalities are **tornado (96979), excessive heat (8428), and tstm wind (7461)**. While tstm wind has more occurrances, tornado still tops for the damage in life 
+
+
+
+
+
+###3. Summarise Property and Crop Damages by type of event
+Property and Crop Damages in estimated dollar value can indicate economic consequences of these events. 
+- For the property damages, we use PROPDMG column which contains the amount of the damages, and PROPDMGEXP which specifies scale/exponent used (e.g. B for Billions).
+- For the crop damages, we use CROPDMG which has the amount, and CROPDMGEXP which specifies scale/exponent used.
+
+Mentioned in [National Weather Service Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf) item 2.7 Damage, on page 12.
+
+> Estimates should be rounded to three significant digits, followed by an alphabetical character signifying the magnitude of the number, i.e., 1.55B for $1,550,000,000. Alphabetical characters used to signify magnitude include "K" for thousands, "M" for millions, and "B" for billions. If additional precision is available, it may be provided in the narrative part of the entry.
+
+- Here are the PROPDMGEXP scales/symbols used: `r unique(data$PROPDMGEXP)`
+
+- Here are the CROPDMGEXP scales/symbols used: `r unique(data$CROPDMGEXP)`
+
+
+```{r, message=F, warning=F}
+
+damages <- 
+  data %>% 
+      mutate(PROPDMG = coalesce(PROPDMG,0)) %>% 
+      mutate(CROPDMG = coalesce(CROPDMG,0)) %>% 
+      mutate(prop_multiplier = case_when(
+                                    PROPDMGEXP == 'B' | PROPDMGEXP == 'b' ~ 1000000000,
+                                    PROPDMGEXP == 'M' | PROPDMGEXP == 'm' ~ 1000000,
+                                    PROPDMGEXP == 'K' | PROPDMGEXP == 'k' ~ 1000,
+                                    PROPDMGEXP == 'H' | PROPDMGEXP == 'h' ~ 100,
+                                    PROPDMGEXP == '1' ~ 10*1,
+                                    PROPDMGEXP == '2' ~ 10*2,
+                                    PROPDMGEXP == '3' ~ 10*3,
+                                    PROPDMGEXP == '4' ~ 10*4,
+                                    PROPDMGEXP == '5' ~ 10*5,
+                                    PROPDMGEXP == '6' ~ 10*6,
+                                    PROPDMGEXP == '7' ~ 10*7,
+                                    PROPDMGEXP == '8' ~ 10*8,
+                                    TRUE ~ 1) # else, just use the value as it is
+             ) %>% 
+      mutate(prop_value = prop_multiplier * PROPDMG) %>% 
+      mutate(crop_multiplier = case_when(
+                                    CROPDMGEXP == 'B' | CROPDMGEXP == 'b' ~ 1000000000,
+                                    CROPDMGEXP == 'M' | CROPDMGEXP == 'm' ~ 1000000,
+                                    CROPDMGEXP == 'K' | CROPDMGEXP == 'k' ~ 1000,
+                                    CROPDMGEXP == 'H' | CROPDMGEXP == 'h' ~ 100,
+                                    CROPDMGEXP == '1' ~ 10*1,
+                                    CROPDMGEXP == '2' ~ 10*2,
+                                    CROPDMGEXP == '3' ~ 10*3,
+                                    TRUE ~ 1) # else, just use the value as it is
+             ) %>% 
+      mutate(crop_value = crop_multiplier * CROPDMG)  %>% 
+      mutate(damage_value = prop_value + crop_value)
+
+damagesByEvent <- 
+  damages %>% 
+    group_by(EVTYPE)  %>% 
+      summarise(prop_value = sum(prop_value), crop_value = sum(crop_value)) %>% 
+        mutate(total_value = prop_value + crop_value) %>%
+          arrange(desc(total_value))  %>% 
+            top_n(10)
+```
+#### This table summarises the events and its damages in dollar value. 
+```{r echo=FALSE} 
+damagesByEvent
+```
+
+The events with the most damages are Flood at $150 Billion, then Hurricane/Typhoon at $71 Billion, and Tornado at $57 Billion.
+
+
+## Results
+
+```{r, message=F, warning=F}
+library(ggplot2)
+require(gridExtra)
+plot1 <- ggplot(data=popHealthByEvent, 
+        aes(x=reorder(EVTYPE, -Fatalities_and_Injuries), y=Fatalities_and_Injuries)) + 
+        geom_bar(stat = "identity") + 
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        ggtitle("Most Harmful Events to Population Health in US") +
+        xlab("Event") +
+        ylab("Total Fatalities & Injuries")
+
+damagesByEvent$total_value <- damagesByEvent$total_value / 1000000000 #convert to billions
+plot2 <- ggplot(data=damagesByEvent, aes(x=reorder(EVTYPE, -total_value), y=damagesByEvent$total_value)) + 
+  geom_bar(stat = "identity") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("Most Damaging Events in US") +
+  xlab("Event") +
+  ylab("Total Damages (in Billion $)")
+
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+
+### In summary, the most damaging type of event in terms of injuries and fatalities is Tornado, which caused 91346 injuries and 60652 casualties.  Moreover, the Flood causes the most damages with a total of $150.3 Billion in properties ($144.7B) and crops ($5.6M).
+
+
+
+
+
